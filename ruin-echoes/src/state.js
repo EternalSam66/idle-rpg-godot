@@ -3,14 +3,14 @@ const SAVE_KEY = 'ruin-echoes-save';
 const defaultState = () => ({
   gold: 0,
   fragments: 0,
-  energy: 100,
   echoStones: 0,
   totalGoldEarned: 0,
+  totalFragmentsEarned: 0,
   adventurers: [
-    { id: 'warrior', unlocked: false, level: 1, rarity: 0 },
-    { id: 'mage', unlocked: false, level: 1, rarity: 0 },
-    { id: 'ranger', unlocked: false, level: 1, rarity: 0 },
-    { id: 'priest', unlocked: false, level: 1, rarity: 0 },
+    { id: 'warrior', unlocked: true, xp: 0 },
+    { id: 'mage', unlocked: false, xp: 0 },
+    { id: 'ranger', unlocked: true, xp: 0 },
+    { id: 'priest', unlocked: false, xp: 0 },
   ],
   unlockedZones: ['entrance'],
   upgrades: {},
@@ -20,8 +20,26 @@ const defaultState = () => ({
 
 export function createGameState() {
   const saved = loadFromStorage();
-  if (saved) return saved;
+  if (saved) {
+    return migrate(saved);
+  }
   return defaultState();
+}
+
+function migrate(saved) {
+  ['warrior', 'ranger'].forEach(id => {
+    const adv = saved.adventurers.find(a => a.id === id);
+    if (adv) adv.unlocked = true;
+  });
+  saved.adventurers.forEach(a => {
+    if (a.xp === undefined) a.xp = 0;
+    if (a.level !== undefined) delete a.level;
+    if (a.rarity !== undefined) delete a.rarity;
+  });
+  if (saved.totalFragmentsEarned === undefined) saved.totalFragmentsEarned = saved.fragments || 0;
+  if (saved.energy !== undefined) delete saved.energy;
+  if (saved.lastTimestamp === undefined) saved.lastTimestamp = Date.now();
+  return saved;
 }
 
 export function saveToStorage(state) {

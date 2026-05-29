@@ -1,14 +1,13 @@
 import { createGameState, saveToStorage, resetForRebirth } from './state.js';
 import {
-  calcTotalProduction,
+  calcTickProduction,
   calcRebirthReward,
   calcOfflineProgress,
   checkZoneUnlocks,
   checkAdventurerUnlocks,
   getUpgradeCost,
-  getRarityCost,
 } from './engine.js';
-import { UPGRADES, RARITIES } from './gameData.js';
+import { UPGRADES, ADVENTURERS } from './gameData.js';
 import { renderApp, updateUI } from './ui.js';
 
 const state = createGameState();
@@ -19,11 +18,11 @@ export function getState() {
 }
 
 function gameTick() {
-  const production = calcTotalProduction(state);
-  state.gold += production;
-  state.totalGoldEarned += production;
-  state.fragments += production * 0.01;
-  state.energy = Math.min(state.energy + 0.5, 200);
+  const result = calcTickProduction(state);
+  state.gold += result.gold;
+  state.fragments += result.fragments;
+  state.totalGoldEarned += result.gold;
+  state.totalFragmentsEarned += result.fragments;
 
   const newZones = checkZoneUnlocks(state);
   newZones.forEach(id => {
@@ -40,9 +39,11 @@ function gameTick() {
 }
 
 function handleClick() {
-  const bonus = 1 + state.adventurers.filter(a => a.unlocked).length * 0.5;
+  const bonus = 1 + state.adventurers.filter(a => a.unlocked).length;
   state.gold += bonus;
-  state.energy = Math.min(state.energy + 5, 200);
+  state.fragments += bonus * 0.05;
+  state.totalGoldEarned += bonus;
+  state.totalFragmentsEarned += bonus * 0.05;
   updateUI(state);
 }
 
@@ -60,24 +61,14 @@ function handleBuyUpgrade(upgradeId) {
   updateUI(state);
 }
 
-function handleLevelUp(adventurerId) {
+function handleHireAdventurer(adventurerId) {
+  const def = ADVENTURERS.find(a => a.id === adventurerId);
+  if (!def || def.unlockCost === 0) return;
   const adv = state.adventurers.find(a => a.id === adventurerId);
-  if (!adv || !adv.unlocked) return;
-  const cost = 100 * Math.pow(1.5, adv.level - 1);
-  if (state.fragments < cost) return;
-  state.fragments -= cost;
-  adv.level++;
-  updateUI(state);
-}
-
-function handleRarityUp(adventurerId) {
-  const adv = state.adventurers.find(a => a.id === adventurerId);
-  if (!adv || !adv.unlocked) return;
-  if (adv.rarity >= RARITIES.length - 1) return;
-  const cost = getRarityCost(adv.rarity);
-  if (state.fragments < cost) return;
-  state.fragments -= cost;
-  adv.rarity++;
+  if (!adv || adv.unlocked) return;
+  if (state.gold < def.unlockCost) return;
+  state.gold -= def.unlockCost;
+  adv.unlocked = true;
   updateUI(state);
 }
 
@@ -89,28 +80,21 @@ function handleRebirth() {
   updateUI(state);
 }
 
-// Apply offline progress on load
 const offline = calcOfflineProgress(state);
-if (offline.gold > 0) {
+if (offline.gold > 0 || offline.fragments > 0) {
   state.gold += offline.gold;
   state.fragments += offline.fragments;
   state.totalGoldEarned += offline.gold;
+  state.totalFragmentsEarned += offline.fragments;
 }
 
-// Initial render
 renderApp(state, {
   onClick: handleClick,
   onBuyUpgrade: handleBuyUpgrade,
-  onLevelUp: handleLevelUp,
-  onRarityUp: handleRarityUp,
+  onHireAdventurer: handleHireAdventurer,
   onRebirth: handleRebirth,
 });
 
-// Game loop
 setInterval(gameTick, 1000);
-
-// Auto-save
 setInterval(() => saveToStorage(state), SAVE_INTERVAL);
-
-// Save on page close
 window.addEventListener('beforeunload', () => saveToStorage(state));

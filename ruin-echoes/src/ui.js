@@ -1,5 +1,5 @@
 import { ZONES, UPGRADES, ADVENTURERS, RARITIES, BONDS } from './gameData.js';
-import { getUpgradeCost, getActiveBonds, calcRebirthReward, calcTotalProduction } from './engine.js';
+import { getUpgradeCost, getActiveBonds, calcRebirthReward, calcTickProduction, getLevel, getRarityIndex, getXpForNextLevel } from './engine.js';
 
 let handlers = {};
 
@@ -12,12 +12,12 @@ export function renderApp(state, h) {
       <main id="main-area">
         <section id="zone-panel"></section>
         <section id="right-panel">
+          <div id="click-area"></div>
           <div id="adventurer-list"></div>
           <div id="log-panel"></div>
           <div id="shop-panel"></div>
         </section>
       </main>
-      <footer id="click-area"></footer>
     </div>
   `;
   updateUI(state);
@@ -26,10 +26,10 @@ export function renderApp(state, h) {
 export function updateUI(state) {
   updateTopBar(state);
   updateZonePanel(state);
+  updateClickArea(state);
   updateAdventurers(state);
   updateLog(state);
   updateShop(state);
-  updateClickArea(state);
 }
 
 function formatNumber(n) {
@@ -46,7 +46,6 @@ function updateTopBar(state) {
     <div class="resources">
       <span class="res gold">🪙 ${formatNumber(state.gold)}</span>
       <span class="res fragment">💎 ${formatNumber(state.fragments)}</span>
-      <span class="res energy">⚡ ${formatNumber(state.energy)}</span>
       <span class="res echo">🔶 ${state.echoStones}</span>
     </div>
   `;
@@ -60,16 +59,32 @@ function updateZonePanel(state) {
     <div class="zone-list">
       ${ZONES.map(zone => {
         const unlocked = state.unlockedZones.includes(zone.id);
+        const progress = Math.min(state.totalFragmentsEarned / zone.fragmentCost, 1);
         return `
-          <div class="zone ${unlocked ? 'unlocked' : 'locked'}" title="${zone.description}">
+          <div class="zone ${unlocked ? 'unlocked' : ''}" title="${zone.description}">
             <span class="zone-icon">${unlocked ? '🔓' : '🔒'}</span>
             <span class="zone-name">${zone.name}</span>
-            ${!unlocked ? `<span class="zone-cost">${formatNumber(zone.cost)}</span>` : ''}
+            ${!unlocked ? `<span class="zone-progress">${Math.floor(progress * 100)}%</span>` : ''}
           </div>
         `;
       }).join('')}
     </div>
   `;
+}
+
+function updateClickArea(state) {
+  const el = document.getElementById('click-area');
+  if (!el) return;
+  const bonus = 1 + state.adventurers.filter(a => a.unlocked).length;
+  el.innerHTML = `
+    <button id="click-button" class="click-btn">
+      <span class="click-icon">🏛️</span>
+      <span class="click-text">探索遺跡</span>
+      <span class="click-hint">🪙+${formatNumber(bonus)} 💎+${formatNumber(bonus * 0.05)}</span>
+    </button>
+  `;
+  const btn = document.getElementById('click-button');
+  if (btn) btn.addEventListener('click', handlers.onClick);
 }
 
 function updateAdventurers(state) {
@@ -80,23 +95,32 @@ function updateAdventurers(state) {
     <div class="adventurer-grid">
       ${ADVENTURERS.map(def => {
         const adv = state.adventurers.find(a => a.id === def.id);
-        if (!adv || !adv.unlocked) return `
-          <div class="adventurer-card locked" style="border-color: ${def.color}44;">
-            <div class="adv-icon">${def.icon}</div>
-            <div class="adv-name">???</div>
-            <div class="adv-status">未解鎖</div>
-          </div>
-        `;
-        const rarity = RARITIES[adv.rarity];
+        const unlocked = adv && adv.unlocked;
+        if (!unlocked) {
+          const canHire = state.gold >= def.unlockCost;
+          return `
+            <div class="adventurer-card locked" style="border-color: ${def.color}44;">
+              <div class="adv-icon">${def.icon}</div>
+              <div class="adv-name">${def.name}</div>
+              <div class="adv-status">${def.unlockCost > 0 ? `${formatNumber(def.unlockCost)} 🪙` : '未解鎖'}</div>
+              ${def.unlockCost > 0 ? `<button class="btn-hire ${canHire ? 'can-afford' : ''}" data-adv="${def.id}" ${!canHire ? 'disabled' : ''}>僱用</button>` : ''}
+            </div>
+          `;
+        }
+        const level = getLevel(adv.xp);
+        const rarityIndex = getRarityIndex(level);
+        const rarity = RARITIES[rarityIndex];
+        const nextXp = getXpForNextLevel(adv.xp);
+        const xpInLevel = adv.xp - (level - 1) * 10;
+        const xpProgress = Math.min(xpInLevel / nextXp, 1);
         return `
           <div class="adventurer-card rarity-${rarity.key}">
             <div class="adv-icon">${def.icon}</div>
             <div class="adv-name">${def.name}</div>
             <div class="adv-rarity">${rarity.label}</div>
-            <div class="adv-level">Lv.${adv.level}</div>
-            <div class="adv-buttons">
-              <button class="btn-small btn-level" data-adv="${def.id}">⬆ Lv</button>
-              <button class="btn-small btn-rarity" data-adv="${def.id}">⬆ ${adv.rarity >= RARITIES.length - 1 ? 'MAX' : RARITIES[adv.rarity + 1]?.label || 'MAX'}</button>
+            <div class="adv-level">Lv.${level}</div>
+            <div class="xp-bar">
+              <div class="xp-fill" style="width: ${xpProgress * 100}%"></div>
             </div>
           </div>
         `;
@@ -116,24 +140,23 @@ function updateAdventurers(state) {
     </div>
   `;
 
-  el.querySelectorAll('.btn-level').forEach(btn => {
-    btn.addEventListener('click', () => handlers.onLevelUp(btn.dataset.adv));
-  });
-  el.querySelectorAll('.btn-rarity').forEach(btn => {
-    btn.addEventListener('click', () => handlers.onRarityUp(btn.dataset.adv));
+  el.querySelectorAll('.btn-hire').forEach(btn => {
+    btn.addEventListener('click', () => handlers.onHireAdventurer(btn.dataset.adv));
   });
 }
 
 function updateLog(state) {
   const el = document.getElementById('log-panel');
   if (!el) return;
+  const tick = calcTickProduction(state);
   const activeBonds = getActiveBonds(state);
   el.innerHTML = `
     <h4>探險日誌</h4>
     <div class="log-entries">
+      <div class="log-entry">🪙 每秒金幣：${formatNumber(tick.gold)}</div>
+      <div class="log-entry">💎 每秒碎片：${formatNumber(tick.fragments)}</div>
       ${state.unlockedZones.length > 1 ? `<div class="log-entry">🏛️ 已探索 ${state.unlockedZones.length}/${ZONES.length} 個區域</div>` : ''}
-      <div class="log-entry">⏱️ 每秒產出：${formatNumber(calcTotalProduction(state))} 金幣</div>
-      ${activeBonds.length > 0 ? `<div class="log-entry">🔗 羈絆啟動：${activeBonds.map(b => b.name).join('、')}</div>` : ''}
+      ${activeBonds.length > 0 ? `<div class="log-entry">🔗 羈絆：${activeBonds.map(b => b.name).join('、')}</div>` : ''}
     </div>
   `;
 }
@@ -179,18 +202,4 @@ function updateShop(state) {
   });
   const rebirthBtn = document.getElementById('rebirth-btn');
   if (rebirthBtn) rebirthBtn.addEventListener('click', handlers.onRebirth);
-}
-
-function updateClickArea(state) {
-  const el = document.getElementById('click-area');
-  if (!el) return;
-  el.innerHTML = `
-    <button id="click-button" class="click-btn">
-      <span class="click-icon">🏛️</span>
-      <span class="click-text">點擊遺跡</span>
-      <span class="click-hint">+${formatNumber(1 + state.adventurers.filter(a => a.unlocked).length * 0.5)} 🪙</span>
-    </button>
-  `;
-  const btn = document.getElementById('click-button');
-  if (btn) btn.addEventListener('click', handlers.onClick);
 }
