@@ -1,33 +1,60 @@
+const SAVE_KEY = 'worid_progress';
+
+function loadSave() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    data.completedScenes = new Set(data.completedScenes || []);
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+function writeSave(data) {
+  try {
+    const toStore = {
+      inventory: data.inventory,
+      sceneEdits: data.sceneEdits,
+      completedScenes: [...data.completedScenes],
+      currentSceneId: data.currentSceneId,
+    };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(toStore));
+  } catch {}
+}
+
 export function createState() {
-  return {
+  const saved = loadSave();
+  const state = {
     player: {
-      x: 0,
-      y: 0,
-      vx: 0,
-      vy: 0,
-      onGround: false,
-      facing: 1,
+      x: 0, y: 0, vx: 0, vy: 0, onGround: false, facing: 1,
     },
-    inventory: [],
-    currentSceneId: null,
-    sceneEdits: {},
-    completedScenes: new Set(),
+    inventory: saved?.inventory ?? [],
+    currentSceneId: saved?.currentSceneId ?? null,
+    sceneEdits: saved?.sceneEdits ?? {},
+    completedScenes: saved?.completedScenes ?? new Set(),
     areaProgress: {},
+    hasSave: saved !== null,
 
     addToInventory(letter) {
       if (this.inventory.length >= 4) return false;
       this.inventory.push(letter.toUpperCase());
+      writeSave(this);
       return true;
     },
 
     removeFromInventory(index) {
       if (index < 0 || index >= this.inventory.length) return null;
-      return this.inventory.splice(index, 1)[0];
+      const result = this.inventory.splice(index, 1)[0];
+      writeSave(this);
+      return result;
     },
 
     recordEdit(sceneId, wordIndex, newText) {
       if (!this.sceneEdits[sceneId]) this.sceneEdits[sceneId] = {};
       this.sceneEdits[sceneId][wordIndex] = newText;
+      writeSave(this);
     },
 
     getEditedWord(sceneId, wordIndex) {
@@ -36,6 +63,7 @@ export function createState() {
 
     completeScene(sceneId) {
       this.completedScenes.add(sceneId);
+      writeSave(this);
     },
 
     reset() {
@@ -44,6 +72,22 @@ export function createState() {
       this.player.vx = 0;
       this.player.vy = 0;
       this.player.onGround = false;
+    },
+
+    fullReset() {
+      this.player.x = 0;
+      this.player.y = 0;
+      this.player.vx = 0;
+      this.player.vy = 0;
+      this.player.onGround = false;
+      this.inventory.length = 0;
+      this.sceneEdits = {};
+      this.completedScenes.clear();
+      this.currentSceneId = null;
+      this.hasSave = false;
+      localStorage.removeItem(SAVE_KEY);
     }
   };
+
+  return state;
 }

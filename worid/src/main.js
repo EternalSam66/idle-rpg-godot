@@ -1,5 +1,5 @@
 import { createDictionary } from './dictionary.js';
-import { loadScene, parseScene } from './scene.js';
+import { loadScene } from './scene.js';
 import { createEngine } from './engine.js';
 import { createRenderer } from './renderer.js';
 import { createEditor } from './editor.js';
@@ -17,7 +17,7 @@ const state = createState();
 const input = createInput();
 const renderer = createRenderer(ctx);
 
-let gameState = 'loading'; // loading | title | falling | playing | ending
+let gameState = 'loading';
 let fallTimer = 0;
 let scene = null;
 let engine = null;
@@ -30,6 +30,7 @@ let sceneIndex = 0;
 
 async function loadSceneById(id) {
   const s = await loadScene(id);
+  restoreEdits(s);
   return s;
 }
 
@@ -37,6 +38,27 @@ async function loadNextScene() {
   sceneIndex++;
   if (sceneIndex >= sceneList.length) return null;
   return await loadSceneById(sceneList[sceneIndex]);
+}
+
+function restoreEdits(s) {
+  const edits = state.sceneEdits[s.id];
+  if (!edits) return;
+  for (const [wordIdx, text] of Object.entries(edits)) {
+    const wi = parseInt(wordIdx);
+    if (s.words[wi]) s.words[wi].text = text;
+  }
+  s.letters = [];
+  s.words.forEach((w, wi) => {
+    w.text.split('').forEach((ch, ci) => {
+      s.letters.push({
+        char: ch, wordIndex: wi,
+        x: w.x + ci * 24, y: w.y,
+        width: 24, height: 32,
+        fixed: w.fixed || false, hazard: w.hazard || false,
+        floating: w.floating || false, editable: !w.fixed && !w.floating,
+      });
+    });
+  });
 }
 
 async function init() {
@@ -47,14 +69,25 @@ async function init() {
   ctx.textAlign = 'start';
 
   await dictionary.load();
-  scene = await loadSceneById(sceneList[0]);
+
+  // Resume from save or start fresh
+  if (state.hasSave) {
+    sceneIndex = state.completedScenes.size;
+    if (sceneIndex >= sceneList.length) sceneIndex = sceneList.length - 1;
+    scene = await loadSceneById(sceneList[sceneIndex]);
+    state.currentScene = scene;
+    state.player.x = scene.playerStart.x;
+    state.player.y = scene.playerStart.y;
+  } else {
+    scene = await loadSceneById(sceneList[0]);
+    state.currentScene = scene;
+    state.player.x = scene.playerStart.x;
+    state.player.y = scene.playerStart.y;
+  }
+
   engine = createEngine(scene, state);
   editor = createEditor(scene, state, dictionary);
-  state.currentScene = scene;
-  state.player.x = scene.playerStart.x;
-  state.player.y = scene.playerStart.y;
-
-  gameState = 'title';
+  gameState = state.hasSave ? 'playing' : 'title';
 
   let lastTime = 0;
   function loop(time) {
@@ -68,7 +101,24 @@ async function init() {
   requestAnimationFrame(loop);
 }
 
+async function restartGame() {
+  state.fullReset();
+  sceneIndex = 0;
+  scene = await loadSceneById(sceneList[0]);
+  engine = createEngine(scene, state);
+  editor = createEditor(scene, state, dictionary);
+  state.currentScene = scene;
+  state.player.x = scene.playerStart.x;
+  state.player.y = scene.playerStart.y;
+  gameState = 'title';
+}
+
 function update(dt) {
+  if (input.justPressed('KeyR') && gameState !== 'loading' && gameState !== 'falling') {
+    restartGame();
+    return;
+  }
+
   if (gameState === 'title') {
     if (input.justPressed('Space')) {
       gameState = 'falling';
@@ -90,7 +140,6 @@ function update(dt) {
     engine.update(dt, input);
     editor.update(input);
 
-    // Check goal
     if (!state.completedScenes.has(scene.id)) {
       const p = state.player;
       if (Math.abs(p.x - scene.goal.x) < 24 && Math.abs(p.y - scene.goal.y) < 32) {
@@ -98,7 +147,6 @@ function update(dt) {
       }
     }
 
-    // Scene transition — reach right edge
     if (state.completedScenes.has(scene.id) && state.player.x > 780) {
       loadNextScene().then(transitionToScene);
     }
@@ -126,17 +174,20 @@ function draw() {
 
     ctx.font = '18px monospace';
     ctx.fillStyle = '#666';
-    ctx.fillText('Press SPACE to begin', 400, 450);
+    ctx.fillText('Press SPACE to begin', 400, 430);
+    ctx.fillText('Press R to restart at any time', 400, 460);
+
+    if (state.hasSave) {
+      ctx.fillStyle = '#4488ff';
+      ctx.fillText('(Resuming saved game)', 400, 490);
+    }
+
     ctx.textAlign = 'start';
     return;
   }
 
   renderer.draw(scene, state, editor);
   if (editor) editor.renderEditPreview(ctx);
-
-  if (gameState === 'falling') {
-    // Player falling is drawn by renderer
-  }
 
   if (gameState === 'ending') {
     ctx.fillStyle = 'rgba(0,0,0,0.85)';
@@ -152,11 +203,11 @@ function draw() {
     ctx.fillStyle = '#666';
     ctx.font = '16px monospace';
     ctx.fillText('Thanks for playing WorId', 400, 440);
+    ctx.fillText('Press R to restart', 400, 470);
   }
 }
 
-// Expose for scene transitions from engine
-export function transitionToScene(nextScene) {
+function transitionToScene(nextScene) {
   if (!nextScene) {
     gameState = 'ending';
     return;
