@@ -1,0 +1,12 @@
+{
+  "id": "area1_01",
+  "words": [
+    { "text": "THE", "x": 20, "y": 400, "fixed": true },
+    { "text": "PATH", "x": 140, "y": 400, "fixed": true },
+    { "text": "ENDS", "x": 300, "y": 400 },
+    { "text": "GAP", "x": 420, "y": 400, "hazard": true }
+  ],
+  "playerStart": { "x": 30, "y": 360 },
+  "goal": { "x": 580, "y": 300 },
+  "atmosphere": "ruined_keep"
+}
