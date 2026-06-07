@@ -104,8 +104,3 @@ text = "Weapon Drills (Lv.0) - 100g"
 [node name="BuyRosterExpansionBtn" type="Button" parent="MainWorkspace/SplitLayout/GuildPanel/GuildLayout"]
 layout_mode = 2
 text = "Expand Roster (Lv.0) - 500g"
-
-[connection signal="pressed" type="button" path="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/RosterGrid/WarriorCard/HireWarriorBtn" method="_on_hire_warrior_btn_pressed"]
-[connection signal="pressed" type="button" path="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/RosterGrid/MageCard/HireMageBtn" method="_on_hire_mage_btn_pressed"]
-[connection signal="pressed" type="button" path="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/BuyWeaponDrillsBtn" method="_on_buy_weapon_drills_btn_pressed"]
-[connection signal="pressed" type="button" path="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/BuyRosterExpansionBtn" method="_on_buy_roster_expansion_btn_pressed"]
