@@ -5,8 +5,8 @@ extends Control
 @onready var coin_label: Label = $MainWorkspace/SplitLayout/GuildPanel/GuildLayout/CoinDisplay
 @onready var hire_warrior_btn: Button = $MainWorkspace/SplitLayout/GuildPanel/GuildLayout/RosterGrid/WarriorCard/HireWarriorBtn
 @onready var hire_mage_btn: Button = $MainWorkspace/SplitLayout/GuildPanel/GuildLayout/RosterGrid/MageCard/HireMageBtn
-@onready var buy_weapon_drills_btn: Button = $MainWorkspace/SplitLayout/GuildPanel/GuildLayout/UpgradesGrid/WeaponDrillsCard/BuyWeaponDrillsBtn
-@onready var buy_roster_expansion_btn: Button = $MainWorkspace/SplitLayout/GuildPanel/GuildLayout/UpgradesGrid/RosterExpansionCard/BuyRosterExpansionBtn
+@onready var buy_weapon_drills_btn: Button = $MainWorkspace/SplitLayout/GuildPanel/GuildLayout/BuyWeaponDrillsBtn
+@onready var buy_roster_expansion_btn: Button = $MainWorkspace/SplitLayout/GuildPanel/GuildLayout/BuyRosterExpansionBtn
 
 @onready var dungeon_engine: Node = $DungeonEngine
 

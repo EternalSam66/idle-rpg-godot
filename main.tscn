@@ -63,14 +63,13 @@ horizontal_alignment = 1
 
 [node name="RosterGrid" type="GridContainer" parent="MainWorkspace/SplitLayout/GuildPanel/GuildLayout"]
 layout_mode = 2
-size_flags_vertical = 3
 columns = 2
 
 [node name="WarriorCard" type="VBoxContainer" parent="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/RosterGrid"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Title" type="Label" parent="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/RosterGrid/WarriorCard"]
+[node name="WarriorTitle" type="Label" parent="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/RosterGrid/WarriorCard"]
 layout_mode = 2
 text = "Warrior (Lv.1)"
 horizontal_alignment = 1
@@ -84,7 +83,7 @@ text = "HIRED"
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Title" type="Label" parent="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/RosterGrid/MageCard"]
+[node name="MageTitle" type="Label" parent="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/RosterGrid/MageCard"]
 layout_mode = 2
 text = "Mage (Lv.1)"
 horizontal_alignment = 1
@@ -98,26 +97,15 @@ layout_mode = 2
 text = "--- SHOP UPGRADES ---"
 horizontal_alignment = 1
 
-[node name="UpgradesGrid" type="VBoxContainer" parent="MainWorkspace/SplitLayout/GuildPanel/GuildLayout"]
+[node name="BuyWeaponDrillsBtn" type="Button" parent="MainWorkspace/SplitLayout/GuildPanel/GuildLayout"]
 layout_mode = 2
-
-[node name="WeaponDrillsCard" type="HBoxContainer" parent="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/UpgradesGrid"]
-layout_mode = 2
-
-[node name="BuyWeaponDrillsBtn" type="Button" parent="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/UpgradesGrid/WeaponDrillsCard"]
-layout_mode = 2
-size_flags_horizontal = 3
 text = "Weapon Drills (Lv.0) - 100g"
 
-[node name="RosterExpansionCard" type="HBoxContainer" parent="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/UpgradesGrid"]
+[node name="BuyRosterExpansionBtn" type="Button" parent="MainWorkspace/SplitLayout/GuildPanel/GuildLayout"]
 layout_mode = 2
-
-[node name="BuyRosterExpansionBtn" type="Button" parent="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/UpgradesGrid/RosterExpansionCard"]
-layout_mode = 2
-size_flags_horizontal = 3
 text = "Expand Roster (Lv.0) - 500g"
 
 [connection signal="pressed" type="button" path="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/RosterGrid/WarriorCard/HireWarriorBtn" method="_on_hire_warrior_btn_pressed"]
 [connection signal="pressed" type="button" path="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/RosterGrid/MageCard/HireMageBtn" method="_on_hire_mage_btn_pressed"]
-[connection signal="pressed" type="button" path="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/UpgradesGrid/WeaponDrillsCard/BuyWeaponDrillsBtn" method="_on_buy_weapon_drills_btn_pressed"]
-[connection signal="pressed" type="button" path="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/UpgradesGrid/RosterExpansionCard/BuyRosterExpansionBtn" method="_on_buy_roster_expansion_btn_pressed"]
+[connection signal="pressed" type="button" path="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/BuyWeaponDrillsBtn" method="_on_buy_weapon_drills_btn_pressed"]
+[connection signal="pressed" type="button" path="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/BuyRosterExpansionBtn" method="_on_buy_roster_expansion_btn_pressed"]
