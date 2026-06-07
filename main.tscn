@@ -25,10 +25,12 @@ grow_vertical = 2
 
 [node name="SplitLayout" type="HBoxContainer" parent="MainWorkspace"]
 layout_mode = 2
+theme_override_constants/separation = 16
 
 [node name="DungeonViewportPanel" type="VBoxContainer" parent="MainWorkspace/SplitLayout"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_constants/separation = 8
 
 [node name="DungeonFloorIndicator" type="Label" parent="MainWorkspace/SplitLayout/DungeonViewportPanel"]
 layout_mode = 2
@@ -50,6 +52,7 @@ layout_mode = 2
 
 [node name="GuildLayout" type="VBoxContainer" parent="MainWorkspace/SplitLayout/GuildPanel"]
 layout_mode = 2
+theme_override_constants/separation = 12
 
 [node name="CoinDisplay" type="Label" parent="MainWorkspace/SplitLayout/GuildPanel/GuildLayout"]
 layout_mode = 2
@@ -104,3 +107,8 @@ text = "Weapon Drills (Lv.0) - 100g"
 [node name="BuyRosterExpansionBtn" type="Button" parent="MainWorkspace/SplitLayout/GuildPanel/GuildLayout"]
 layout_mode = 2
 text = "Expand Roster (Lv.0) - 500g"
+
+[connection signal="pressed" type="button" path="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/RosterGrid/WarriorCard/HireWarriorBtn" method="_on_hire_warrior_btn_pressed"]
+[connection signal="pressed" type="button" path="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/RosterGrid/MageCard/HireMageBtn" method="_on_hire_mage_btn_pressed"]
+[connection signal="pressed" type="button" path="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/BuyWeaponDrillsBtn" method="_on_buy_weapon_drills_btn_pressed"]
+[connection signal="pressed" type="button" path="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/BuyRosterExpansionBtn" method="_on_buy_roster_expansion_btn_pressed"]

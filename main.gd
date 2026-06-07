@@ -11,6 +11,11 @@ extends Control
 @onready var dungeon_engine: Node = $DungeonEngine
 
 func _ready() -> void:
+	var theme_helper = load("res://theme_helper.gd")
+	theme_helper.apply_custom_styling($MainWorkspace)
+	theme_helper.apply_custom_styling($MainWorkspace/SplitLayout/DungeonViewportPanel/BattleArenaDisplay)
+	theme_helper.apply_custom_styling($MainWorkspace/SplitLayout/GuildPanel)
+
 	if GameState.adventurers.size() == 0:
 		GameState.adventurers.append({
 			"classType": "Warrior",
@@ -32,7 +37,17 @@ func _process(_delta: float) -> void:
 	_update_upgrade_button_states()
 
 func _on_dungeon_log_emitted(text: String) -> void:
-	console_output.append_text(text + "\n")
+	var colored_text = text
+	if "wiped out" in text:
+		colored_text = "[color=#ff6b6b][b]" + text + "[/b][/color]"
+	elif "defeated" in text or "Earned" in text:
+		colored_text = "[color=#ffd166]" + text + "[/color]"
+	elif "enters" in text:
+		colored_text = "[color=#4cc9f0][i]" + text + "[/i][/color]"
+	elif "hits" in text:
+		colored_text = "[color=#e63946]" + text + "[/color]"
+
+	console_output.append_text(colored_text + "\n")
 	var scrollbar = console_output.get_v_scroll_bar()
 	if scrollbar:
 		scrollbar.value = scrollbar.max_value
