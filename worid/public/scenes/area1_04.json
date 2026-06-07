@@ -1,0 +1,13 @@
+{
+  "id": "area1_04",
+  "words": [
+    { "text": "BROKEN", "x": 20, "y": 400, "fixed": true },
+    { "text": "DOOR", "x": 220, "y": 400 },
+    { "text": "BARS", "x": 360, "y": 400 },
+    { "text": "THE", "x": 500, "y": 400, "fixed": true },
+    { "text": "WAY", "x": 600, "y": 400, "fixed": true }
+  ],
+  "playerStart": { "x": 30, "y": 360 },
+  "goal": { "x": 750, "y": 200 },
+  "atmosphere": "ruined_keep"
+}

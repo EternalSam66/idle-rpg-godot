@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.crt::after {
+  content: ' ';
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15) 0px,
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.neon-gold {
+  text-shadow: 0 0 4px #FBBF24, 0 0 8px #FBBF24;
+}
+.neon-red {
+  text-shadow: 0 0 4px #E11D48, 0 0 8px #E11D48;
+}
+.neon-cyan {
+  text-shadow: 0 0 4px #22D3EE, 0 0 8px #22D3EE;
+}
+
+.biome-grass { background: #1a3a1a; }
+.biome-dirt { background: #3a2a1a; }
+.biome-water { background: #1a2a4a; }
+.biome-stone { background: #2a2a3a; }
+.biome-crypt { background: #1a0a2a; }
+
+.grid-cols-14 {
+  grid-template-columns: repeat(14, minmax(0, 1fr));
+}
+.grid-rows-10 {
+  grid-template-rows: repeat(10, minmax(0, 1fr));
+}
+
+.grid-cell {
+  @apply border border-gray-800/30 flex items-center justify-center;
+  overflow: hidden;
+}
+
+@keyframes walk-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+.walking { animation: walk-pulse 0.4s ease-in-out infinite; }

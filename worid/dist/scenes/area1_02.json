@@ -1,0 +1,13 @@
+{
+  "id": "area1_02",
+  "words": [
+    { "text": "F", "x": 20, "y": 300, "floating": true },
+    { "text": "OLD", "x": 40, "y": 400, "fixed": true },
+    { "text": "DOOR", "x": 180, "y": 400 },
+    { "text": "BLOCKS", "x": 340, "y": 400, "fixed": true },
+    { "text": "PATH", "x": 520, "y": 400, "fixed": true }
+  ],
+  "playerStart": { "x": 50, "y": 360 },
+  "goal": { "x": 750, "y": 200 },
+  "atmosphere": "ruined_keep"
+}

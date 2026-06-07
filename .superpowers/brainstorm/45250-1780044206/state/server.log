@@ -1,0 +1,4 @@
+{"type":"server-started","port":56789,"host":"0.0.0.0","url_host":"163.192.32.217","url":"http://163.192.32.217:56789","screen_dir":"/home/eternal/workspace/.superpowers/brainstorm/45250-1780044206/content","state_dir":"/home/eternal/workspace/.superpowers/brainstorm/45250-1780044206/state"}
+{"type":"screen-added","file":"/home/eternal/workspace/.superpowers/brainstorm/45250-1780044206/content/map-mockup.html"}
+{"type":"screen-added","file":"/home/eternal/workspace/.superpowers/brainstorm/45250-1780044206/content/map-v2.html"}
+{"type":"server-stopped","reason":"idle timeout"}

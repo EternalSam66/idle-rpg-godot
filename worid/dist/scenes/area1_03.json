@@ -1,0 +1,14 @@
+{
+  "id": "area1_03",
+  "words": [
+    { "text": "S", "x": 550, "y": 200, "floating": true },
+    { "text": "THE", "x": 20, "y": 400, "fixed": true },
+    { "text": "TOP", "x": 140, "y": 400 },
+    { "text": "IS", "x": 260, "y": 400, "fixed": true },
+    { "text": "LOST", "x": 380, "y": 300, "floating": true },
+    { "text": "PIT", "x": 420, "y": 450, "hazard": true }
+  ],
+  "playerStart": { "x": 30, "y": 360 },
+  "goal": { "x": 700, "y": 200 },
+  "atmosphere": "ruined_keep"
+}

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Sprite Sheet Test</title>
+<style>
+  body { background: #111; color: #eee; font-family: monospace; padding: 20px; }
+  h2 { color: #e11d48; margin-top: 30px; }
+  .sheet { display: flex; gap: 10px; flex-wrap: wrap; }
+  .sheet img { border: 1px solid #333; }
+  .grid { display: inline-grid; gap: 1px; background: #333; }
+  .grid img { display: block; }
+  .frame-label { color: #888; font-size: 11px; text-align: center; margin-top: 4px; }
+</style>
+</head>
+<body>
+<h1>Sprite Sheet Layout Test</h1>
+
+<h2>Building Sheet (isometric_four_buildings.png 400x400)</h2>
+<div class="sheet">
+  <div><img src="assets/tiles/isometric_four_buildings.png"><br><span class="frame-label">Full sheet</span></div>
+  <div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px;">
+      <div><canvas id="b1" width="200" height="200"></canvas><br><span class="frame-label">Building 1 (0,0)</span></div>
+      <div><canvas id="b2" width="200" height="200"></canvas><br><span class="frame-label">Building 2 (200,0)</span></div>
+      <div><canvas id="b3" width="200" height="200"></canvas><br><span class="frame-label">Building 3 (0,200)</span></div>
+      <div><canvas id="b4" width="200" height="200"></canvas><br><span class="frame-label">Building 4 (200,200)</span></div>
+    </div>
+  </div>
+</div>
+
+<h2>Hero Sheet (hero-full.png 240x448)</h2>
+<div class="sheet">
+  <div><img src="assets/characters/hero-full.png"><br><span class="frame-label">Full sheet</span></div>
+  <div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px;max-width:600px;">
+    </div>
+    <canvas id="hero-grid" width="240" height="448"></canvas>
+  </div>
+</div>
+
+<h2>Floor Tile Sample</h2>
+<div class="sheet">
+  <div><img src="assets/tiles/stone-soup/Tile-Sets/Floors/ISS_Floor_Grass-64x32.png"><br><span class="frame-label">Grass</span></div>
+  <div><img src="assets/tiles/stone-soup/Tile-Sets/Floors/ISS_Floor_Dirt-64x32.png"><br><span class="frame-label">Dirt</span></div>
+  <div><img src="assets/tiles/stone-soup/Tile-Sets/Floors/ISS_Floor_Rect_Gray-64x32.png"><br><span class="frame-label">Stone</span></div>
+  <div><img src="assets/tiles/stone-soup/Tile-Sets/Floors/ISS_Water_Misc-64x32.png"><br><span class="frame-label">Water</span></div>
+  <div><img src="assets/tiles/stone-soup/Tile-Sets/Floors/ISS_Floor_Crypt-64x32.png"><br><span class="frame-label">Crypt</span></div>
+  <div><img src="assets/tiles/stone-soup/Tile-Sets/Floors/ISS_Floor_Marble-64x32.png"><br><span class="frame-label">Marble</span></div>
+  <div><img src="assets/tiles/stone-soup/Tile-Sets/Floors/ISS_Floor_Tomb-64x32.png"><br><span class="frame-label">Tomb</span></div>
+</div>
+
+<h2>Wall Block Sample</h2>
+<div class="sheet">
+  <div><img src="assets/tiles/stone-soup/Tile-Sets/Walls/Block/ISS_Block_Stone_2-64x64.png"><br><span class="frame-label">Stone Wall</span></div>
+  <div><img src="assets/tiles/stone-soup/Tile-Sets/Walls/Block/ISS_Block_Brick_Dark-64x64.png"><br><span class="frame-label">Dark Brick</span></div>
+  <div><img src="assets/tiles/stone-soup/Tile-Sets/Walls/Block/ISS_Block_Relief-64x64.png"><br><span class="frame-label">Relief</span></div>
+</div>
+
+<script>
+// Draw building sub-frames
+const bImg = new Image();
+bImg.onload = () => {
+  const positions = [[0,0], [200,0], [0,200], [200,200]];
+  positions.forEach(([sx, sy], i) => {
+    const c = document.getElementById('b' + (i+1));
+    if (!c) return;
+    const ctx2 = c.getContext('2d');
+    ctx2.clearRect(0, 0, 200, 200);
+    ctx2.drawImage(bImg, sx, sy, 200, 200, 0, 0, 200, 200);
+  });
+  // Draw building with isometric shadow background
+  document.querySelectorAll('.isometric-preview').forEach((canvas, i) => {
+    const ctx3 = canvas.getContext('2d');
+    const p = positions[i];
+    ctx3.fillStyle = '#0f0f23';
+    ctx3.fillRect(0, 0, 200, 200);
+    const scale = 0.5;
+    ctx3.drawImage(bImg, p[0], p[1], 200, 200, 25, 25, 150, 150);
+  });
+};
+bImg.src = 'assets/tiles/isometric_four_buildings.png';
+
+// Draw hero grid frames
+const hImg = new Image();
+hImg.onload = () => {
+  const c = document.getElementById('hero-grid');
+  const ctx2 = c.getContext('2d');
+  ctx2.clearRect(0, 0, 240, 448);
+  ctx2.drawImage(hImg, 0, 0);
+  
+  // Draw grid lines
+  ctx2.strokeStyle = 'rgba(225,29,72,0.5)';
+  ctx2.lineWidth = 1;
+  for (let col = 0; col <= 5; col++) {
+    ctx2.beginPath(); ctx2.moveTo(col * 48, 0); ctx2.lineTo(col * 48, 448); ctx2.stroke();
+  }
+  for (let row = 0; row <= 7; row++) {
+    ctx2.beginPath(); ctx2.moveTo(0, row * 64); ctx2.lineTo(240, row * 64); ctx2.stroke();
+  }
+  
+  // Label frames
+  ctx2.fillStyle = '#e11d48';
+  ctx2.font = '10px monospace';
+  for (let r = 0; r < 7; r++) {
+    ctx2.fillText('r' + r, 2, r * 64 + 12);
+  }
+};
+hImg.src = 'assets/characters/hero-full.png';
+</script>
+
+</body>
+</html>

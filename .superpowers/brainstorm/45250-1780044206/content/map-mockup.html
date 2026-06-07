@@ -1,0 +1,117 @@
+<div class="section">
+  <h2>迷你世界地圖概念</h2>
+  <p class="subtitle">3×3 遺跡世界，每個方格是地圖的一部分，冒險者實際走過去探索</p>
+</div>
+
+<div class="mockup" style="max-width: 650px; margin: 0 auto;">
+  <div class="mockup-header">
+    <span>🗺️ 遺跡世界地圖</span>
+    <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.7;">⚡ 探索條: ████████░░ 80%</span>
+  </div>
+  <div class="mockup-body" style="padding: 16px;">
+
+    <!-- 3x3 Grid -->
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; aspect-ratio: 1;">
+
+      <!-- Square 1: Unlocked, explorer is here -->
+      <div style="background: #2d4a2d; border-radius: 8px; padding: 10px; border: 2px solid #4caf50; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; min-height: 120px;">
+        <div style="font-size: 1.5rem;">🌲</div>
+        <div style="font-size: 0.7rem; color: #aaa; margin-top: 4px;">森林小徑</div>
+        <div style="position: absolute; bottom: 6px; right: 6px; font-size: 1.2rem;" title="戰士正在此探索">⚔️</div>
+        <div style="position: absolute; top: 4px; right: 6px; font-size: 0.6rem; color: #4caf50;">✅</div>
+        <div style="font-size: 0.6rem; color: #ffd700; margin-top: 6px;">🪙 +3/s · 💎 低機率</div>
+      </div>
+
+      <!-- Square 2: Unlocked, empty -->
+      <div style="background: #2d3a2d; border-radius: 8px; padding: 10px; border: 2px solid #4caf50; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 120px;">
+        <div style="font-size: 1.5rem;">🛤️</div>
+        <div style="font-size: 0.7rem; color: #aaa; margin-top: 4px;">古道</div>
+        <div style="position: absolute; top: 4px; right: 6px; font-size: 0.6rem; color: #4caf50;">✅</div>
+        <div style="font-size: 0.6rem; color: #ffd700; margin-top: 6px;">🪙 +1/s · 💎 極低</div>
+      </div>
+
+      <!-- Square 3: Locked -->
+      <div style="background: #2a2a2a; border-radius: 8px; padding: 10px; border: 2px dashed #555; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 120px; opacity: 0.6;">
+        <div style="font-size: 1.2rem;">🔒</div>
+        <div style="font-size: 0.6rem; color: #888; margin-top: 4px;">解鎖: 500🪙</div>
+        <div style="font-size: 0.6rem; color: #666;">（需先解鎖相鄰）</div>
+      </div>
+
+      <!-- Square 4: Locked but adjacent (can unlock) -->
+      <div style="background: #2a3025; border-radius: 8px; padding: 10px; border: 2px solid #888; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 120px;">
+        <div style="font-size: 1.5rem;">🏕️</div>
+        <div style="font-size: 0.7rem; color: #aaa; margin-top: 4px;">廢棄營地</div>
+        <button style="margin-top: 6px; padding: 4px 12px; border: 1px solid #ffd700; border-radius: 6px; background: transparent; color: #ffd700; font-size: 0.7rem; cursor: pointer;">解鎖 300🪙</button>
+      </div>
+
+      <!-- Square 5: Locked -->
+      <div style="background: #2a2a2a; border-radius: 8px; padding: 10px; border: 2px dashed #555; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 120px; opacity: 0.6;">
+        <div style="font-size: 1.2rem;">🔒</div>
+        <div style="font-size: 0.6rem; color: #888; margin-top: 2px;">❓❓❓</div>
+      </div>
+
+      <!-- Square 6: Locked -->
+      <div style="background: #2a2a2a; border-radius: 8px; padding: 10px; border: 2px dashed #555; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 120px; opacity: 0.6;">
+        <div style="font-size: 1.2rem;">🔒</div>
+        <div style="font-size: 0.6rem; color: #888; margin-top: 2px;">❓❓❓</div>
+      </div>
+
+      <!-- Square 7: Locked -->
+      <div style="background: #2a2a2a; border-radius: 8px; padding: 10px; border: 2px dashed #555; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 120px; opacity: 0.6;">
+        <div style="font-size: 1.2rem;">🔒</div>
+      </div>
+
+      <!-- Square 8: Locked, adjacent -->
+      <div style="background: #2a3025; border-radius: 8px; padding: 10px; border: 2px solid #888; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 120px;">
+        <div style="font-size: 1.5rem;">🌊</div>
+        <div style="font-size: 0.7rem; color: #aaa; margin-top: 4px;">湖畔</div>
+        <button style="margin-top: 6px; padding: 4px 12px; border: 1px solid #ffd700; border-radius: 6px; background: transparent; color: #ffd700; font-size: 0.7rem; cursor: pointer;">解鎖 400🪙</button>
+      </div>
+
+      <!-- Square 9: Locked -->
+      <div style="background: #2a2a2a; border-radius: 8px; padding: 10px; border: 2px dashed #555; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 120px; opacity: 0.6;">
+        <div style="font-size: 1.2rem;">🔒</div>
+      </div>
+
+    </div>
+
+    <!-- Legend / Info -->
+    <div style="margin-top: 16px; display: flex; gap: 20px; font-size: 0.75rem; color: #aaa; flex-wrap: wrap;">
+      <span>✅ 已解鎖 · 冒險者自動探索中</span>
+      <span>🔒 尚未解鎖</span>
+      <span>🪙🔓 可解鎖（相鄰）</span>
+      <span>⚔️🏹🔮✨ 冒險者位置</span>
+    </div>
+
+  </div>
+</div>
+
+<div class="section" style="margin-top: 24px;">
+  <h3>探索流程</h3>
+  <div style="display: flex; gap: 12px; font-size: 0.85rem; color: #ccc; flex-wrap: wrap;">
+    <div style="background: #1a1a2e; padding: 10px 14px; border-radius: 8px; border: 1px solid #333;">
+      <strong>1.</strong> 點擊「探索」累積條
+    </div>
+    <div style="background: #1a1a2e; padding: 10px 14px; border-radius: 8px; border: 1px solid #333;">
+      <strong>2.</strong> 條滿了→產生探索點
+    </div>
+    <div style="background: #1a1a2e; padding: 10px 14px; border-radius: 8px; border: 1px solid #333;">
+      <strong>3.</strong> 最近的冒險者自動前往
+    </div>
+    <div style="background: #1a1a2e; padding: 10px 14px; border-radius: 8px; border: 1px solid #333;">
+      <strong>4.</strong> 走過去探索→掉落獎勵
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 24px;">
+  <h3>關鍵設計點</h3>
+  <ul style="color: #aaa; font-size: 0.85rem; line-height: 1.6;">
+    <li>只能解鎖<strong>相鄰</strong>的格子（上下左右）</li>
+    <li>每個格子有不同主題（森林、道路、營地、湖畔…）</li>
+    <li>解鎖花<strong>金幣</strong>，價格看位置</li>
+    <li>冒險者探索時隨機掉落：高機率🪙、低機率💎</li>
+    <li>點擊「探索」不是直接掉錢，而是送冒險者去巡邏</li>
+    <li>全部9格解鎖後→收集拼圖碎片→前往下一張地圖</li>
+  </ul>
+</div>

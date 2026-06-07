@@ -1,0 +1,13 @@
+{
+  "id": "area1_01",
+  "words": [
+    { "text": "A", "x": 30, "y": 80, "floating": true },
+    { "text": "DARK", "x": 80, "y": 80, "floating": true },
+    { "text": "ROOM", "x": 190, "y": 80, "floating": true },
+    { "text": "WALL", "x": 350, "y": 300, "fixed": true },
+    { "text": "K", "x": 600, "y": 310, "floating": true }
+  ],
+  "playerStart": { "x": 30, "y": 320 },
+  "goal": { "x": 750, "y": 320 },
+  "atmosphere": "ruined_keep"
+}

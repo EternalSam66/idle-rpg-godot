@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Tile Picker</title>
+<style>
+  body { background: #111; color: #eee; font-family: monospace; padding: 20px; }
+  h1 { color: #e11d48; }
+  .tile-grid { display: grid; grid-template-columns: repeat(16, 64px); gap: 0; background: #222; padding: 10px; border-radius: 8px; }
+  .tile-cell { width: 64px; height: 64px; position: relative; border: 1px solid #333; image-rendering: pixelated; }
+  .tile-cell img { width: 100%; height: 100%; image-rendering: pixelated; }
+  .tile-idx { position: absolute; bottom: 1px; right: 2px; font-size: 9px; color: rgba(255,255,255,0.5); background: rgba(0,0,0,0.5); padding: 0 2px; }
+  .selected { border-color: #e11d48 !important; box-shadow: 0 0 10px rgba(225,29,72,0.5); }
+  h2 { margin-top: 20px; }
+  .controls { margin: 10px 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .controls label { color: #888; }
+  .zone-row { display: flex; gap: 8px; align-items: center; margin: 4px 0; padding: 6px 10px; background: #1a1a2e; border-radius: 6px; }
+  .zone-row label { width: 120px; }
+  .zone-row input { width: 60px; background: #333; color: #fff; border: 1px solid #555; padding: 4px 8px; border-radius: 4px; font-family: monospace; }
+  .zone-row .preview { width: 64px; height: 64px; image-rendering: pixelated; border: 1px solid #333; }
+</style>
+</head>
+<body>
+<h1>Overworld Tileset — Tile Picker</h1>
+<p>Click a tile to select it. Configure zone tile indices below.</p>
+
+<div class="controls">
+  <label>Scale: <select id="scale">
+    <option value="1">1x (16px)</option>
+    <option value="2">2x (32px)</option>
+    <option value="3" selected>3x (48px)</option>
+    <option value="4">4x (64px)</option>
+  </select></label>
+</div>
+
+<div id="tile-container" class="tile-grid"></div>
+
+<h2>Zone Configuration</h2>
+<div id="zone-config"></div>
+
+<button onclick="saveConfig()" style="margin-top:16px;padding:8px 20px;background:#e11d48;color:#fff;border:none;border-radius:6px;font-size:16px;cursor:pointer;">Save Config &amp; Reload Game</button>
+<pre id="output" style="margin-top:12px;background:#0a0a0a;padding:10px;border-radius:6px;color:#0f0;font-size:12px;"></pre>
+
+<script>
+const tilesetImg = new Image();
+tilesetImg.onload = init;
+tilesetImg.src = 'assets/tiles/overworld/tileset.png';
+
+const TILE_SIZE = 16;
+const COLS = 16;
+const ROWS = 21;
+let selectedIdx = 0;
+const zoneKeys = ['A', 'B', 'C', 'D', 'E'];
+const zoneNames = ['Sunset Hills', 'Windvale Village', 'Serene Lake', 'Ancient Ruins', 'Abyss Rift'];
+let zoneTiles = [0, 1, 32, 96, 112];
+
+function init() {
+  renderTiles();
+  renderZoneConfig();
+}
+
+function renderTiles() {
+  const container = document.getElementById('tile-container');
+  container.innerHTML = '';
+  const scale = parseInt(document.getElementById('scale').value);
+  
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const idx = r * COLS + c;
+      const cell = document.createElement('div');
+      cell.className = 'tile-cell' + (idx === selectedIdx ? ' selected' : '');
+      
+      const canvas = document.createElement('canvas');
+      canvas.width = TILE_SIZE;
+      canvas.height = TILE_SIZE;
+      canvas.style.width = (TILE_SIZE * scale) + 'px';
+      canvas.style.height = (TILE_SIZE * scale) + 'px';
+      canvas.style.imageRendering = 'pixelated';
+      const cx = canvas.getContext('2d');
+      cx.imageSmoothingEnabled = false;
+      cx.drawImage(tilesetImg, c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, 0, TILE_SIZE, TILE_SIZE);
+      
+      cell.appendChild(canvas);
+      
+      const label = document.createElement('span');
+      label.className = 'tile-idx';
+      label.textContent = idx;
+      cell.appendChild(label);
+      
+      cell.onclick = () => selectTile(idx);
+      container.appendChild(cell);
+    }
+  }
+}
+
+function selectTile(idx) {
+  selectedIdx = idx;
+  document.querySelectorAll('.tile-cell').forEach((el, i) => {
+    el.classList.toggle('selected', i === idx);
+  });
+  updateOutput();
+}
+
+function renderZoneConfig() {
+  const div = document.getElementById('zone-config');
+  div.innerHTML = '';
+  
+  zoneKeys.forEach((key, i) => {
+    const row = document.createElement('div');
+    row.className = 'zone-row';
+    row.innerHTML = `
+      <label>${zoneNames[i]} (${key}):</label>
+      <input type="number" id="zone-${key}" value="${zoneTiles[i]}" min="0" max="335" onchange="updateZoneTile('${key}', this.value)">
+      <canvas class="preview" id="preview-${key}" width="16" height="16"></canvas>
+      <span style="color:#666;font-size:12px;">adj: </span>
+      <input type="text" id="adj-${key}" value="" placeholder="e.g. B,C" style="width:80px;background:#333;color:#fff;border:1px solid #555;padding:2px 4px;border-radius:3px;font-size:11px;">
+    `;
+    div.appendChild(row);
+    
+    // Draw preview
+    const pv = document.getElementById(`preview-${key}`);
+    const pctx = pv.getContext('2d');
+    pctx.imageSmoothingEnabled = false;
+    const idx = parseInt(document.getElementById(`zone-${key}`).value);
+    const c = idx % COLS;
+    const r = Math.floor(idx / COLS);
+    pctx.drawImage(tilesetImg, c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, 0, 16, 16);
+  });
+}
+
+function updateZoneTile(key, val) {
+  const idx = parseInt(val) || 0;
+  const i = zoneKeys.indexOf(key);
+  zoneTiles[i] = idx;
+  
+  const pv = document.getElementById(`preview-${key}`);
+  const pctx = pv.getContext('2d');
+  pctx.imageSmoothingEnabled = false;
+  const c = idx % COLS;
+  const r = Math.floor(idx / COLS);
+  pctx.clearRect(0, 0, 16, 16);
+  pctx.drawImage(tilesetImg, c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, 0, 16, 16);
+  
+  updateOutput();
+}
+
+function updateOutput() {
+  const out = document.getElementById('output');
+  // Get building indices
+  const bStart = parseInt(prompt("Building start tile index (0-335):", "128")) || 128;
+  const mStart = parseInt(prompt("Mountain start tile index:", "96")) || 96;
+  
+  let config = `// Zone tile indices:\n`;
+  zoneKeys.forEach((key, i) => {
+    config += `${key}: tileIdx = ${zoneTiles[i]} (${zoneNames[i]})\n`;
+  });
+  config += `\nBuildings: start at ${bStart}\n`;
+  config += `Mountains: start at ${mStart}\n`;
+  config += `\nconst ZONE_GEOM updates needed:`;
+  zoneKeys.forEach((key, i) => {
+    config += `\n  ${key}: { ..., tileIdx: ${zoneTiles[i]} }`;
+  });
+  out.textContent = config;
+}
+
+function saveConfig() {
+  const config = {};
+  zoneKeys.forEach((key, i) => {
+    config[key] = parseInt(document.getElementById(`zone-${key}`).value) || 0;
+  });
+  const json = JSON.stringify(config, null, 2);
+  out.textContent = 'Copy this config:\n' + json;
+  // Reload with query params
+  const params = new URLSearchParams();
+  for (const [k, v] of Object.entries(config)) {
+    params.set(k, v);
+  }
+  window.location.href = '/?' + params.toString();
+}
+
+document.getElementById('scale').addEventListener('change', renderTiles);
+</script>
+</body>
+</html>

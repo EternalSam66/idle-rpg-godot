@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>遺跡世界地圖概念</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body {
+    margin: 16px;
+    background: #111;
+    color: #ccc;
+    font-family: system-ui, sans-serif;
+  }
+  .section { margin-bottom: 16px; }
+  h2 { font-size: 1.1rem; margin: 0 0 4px; color: #ffd700; }
+  .subtitle { font-size: 0.75rem; color: #888; margin: 0; }
+
+  .rpg-map-container {
+    background: #1a1a2e;
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid #3a3a4a;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .rpg-map {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1.4 / 1;
+    background: #2a4a2a;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #4a5a3a;
+  }
+
+  .tree {
+    position: absolute;
+    width: 0; height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-bottom: 16px solid #2d6a2d;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
+  }
+  .tree::after {
+    content: '';
+    position: absolute;
+    top: 14px; left: -2px;
+    width: 4px; height: 6px;
+    background: #5a3a1a;
+    border-radius: 1px;
+  }
+  .tree.light { border-bottom-color: #3a8a3a; }
+  .tree.dark { border-bottom-color: #1a4a1a; }
+
+  .path-h {
+    position: absolute;
+    height: 5px;
+    background: #6a5a3a;
+    border-radius: 2px;
+    opacity: 0.6;
+  }
+  .path-v {
+    position: absolute;
+    width: 5px;
+    background: #6a5a3a;
+    border-radius: 2px;
+    opacity: 0.6;
+  }
+
+  .bush {
+    position: absolute;
+    width: 10px; height: 7px;
+    background: #2a6a2a;
+    border-radius: 50%;
+  }
+
+  .rock {
+    position: absolute;
+    width: 9px; height: 6px;
+    background: #7a7a6a;
+    border-radius: 3px;
+  }
+
+  .water-body {
+    position: absolute;
+    background: #1a3a6a;
+    border-radius: 50%;
+    opacity: 0.7;
+  }
+  .wave {
+    position: absolute;
+    width: 16px; height: 4px;
+    border-bottom: 2px solid rgba(100, 180, 255, 0.3);
+    border-radius: 50%;
+  }
+
+  .tent {
+    position: absolute;
+    width: 0; height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 12px solid #8a6a3a;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+  }
+  .tent::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: -4px;
+    width: 8px; height: 6px;
+    background: #6a4a2a;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+  }
+
+  .ruin-wall-v {
+    position: absolute;
+    width: 4px;
+    background: #6a5a4a;
+    border-radius: 1px;
+  }
+  .ruin-wall-h {
+    position: absolute;
+    height: 4px;
+    background: #6a5a4a;
+    border-radius: 1px;
+  }
+
+  .mountain {
+    position: absolute;
+    width: 0; height: 0;
+    border-left: 14px solid transparent;
+    border-right: 14px solid transparent;
+    border-bottom: 20px solid #5a5a4a;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
+  }
+  .mountain::after {
+    content: '';
+    position: absolute;
+    top: 6px; left: -6px;
+    width: 0; height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 10px solid #6a6a5a;
+  }
+
+  .monster-icon {
+    position: absolute;
+    font-size: 0.8rem;
+    filter: drop-shadow(0 0 6px rgba(255,50,50,0.4));
+  }
+
+  .chest-icon {
+    position: absolute;
+    font-size: 0.7rem;
+    filter: drop-shadow(0 0 8px rgba(255,215,0,0.5));
+  }
+
+  .flower {
+    position: absolute;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: #c44;
+  }
+  .flower.yellow { background: #ca4; }
+
+  .adv-dot {
+    position: absolute;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    z-index: 5;
+    animation: advPulse 1.5s ease-in-out infinite;
+  }
+  .adv-warrior { background: #e74c3c; }
+  .adv-ranger { background: #2ecc71; }
+  .adv-glow-warrior { box-shadow: 0 0 12px rgba(231, 76, 60, 0.6); }
+  .adv-glow-ranger { box-shadow: 0 0 12px rgba(46, 204, 113, 0.6); }
+  @keyframes advPulse {
+    0%, 100% { box-shadow: 0 0 4px rgba(255,255,255,0.3); }
+    50% { box-shadow: 0 0 12px rgba(255,255,255,0.7); }
+  }
+
+  .adv-arrow {
+    position: absolute;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #ffd700;
+    text-shadow: 0 0 6px rgba(255,215,0,0.5);
+    animation: arrowBounce 0.8s ease-in-out infinite;
+    z-index: 6;
+  }
+  @keyframes arrowBounce {
+    0%, 100% { transform: translateY(0); opacity: 1; }
+    50% { transform: translateY(-4px); opacity: 0.6; }
+  }
+
+  .fog-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .fog-piece {
+    position: absolute;
+    background: radial-gradient(ellipse at 30% 40%, rgba(0,0,0,0.7) 30%, rgba(0,0,0,0.92) 80%, rgba(0,0,0,1) 100%);
+    border-left: 1px solid rgba(60,60,70,0.2);
+    transition: all 0.6s;
+    pointer-events: auto;
+    cursor: pointer;
+  }
+  .fog-piece.unlocked {
+    background: transparent !important;
+    pointer-events: none;
+    border-left: none;
+  }
+  .fog-piece.can-unlock {
+    background: radial-gradient(ellipse at 30% 40%, rgba(25,25,20,0.6) 30%, rgba(0,0,0,0.85) 80%, rgba(0,0,0,0.95) 100%);
+  }
+  .fog-piece.can-unlock:hover {
+    background: radial-gradient(ellipse at 30% 40%, rgba(40,40,20,0.55) 30%, rgba(0,0,0,0.75) 80%, rgba(0,0,0,0.9) 100%);
+    box-shadow: inset 0 0 30px rgba(255,215,0,0.1);
+  }
+
+  .fog-label {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 12;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .fog-label .lock {
+    font-size: 1.5rem;
+    text-shadow: 0 0 15px rgba(255,255,255,0.15);
+  }
+  .fog-label .cost {
+    font-size: 0.6rem;
+    color: #ffd700;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.9);
+    font-weight: 600;
+  }
+  .fog-label .hint {
+    font-size: 0.5rem;
+    color: #666;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+  }
+
+  .explore-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+    background: #1a1a2e;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid #333;
+  }
+  .bar-track {
+    flex: 1;
+    height: 8px;
+    background: #2a2a3e;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    width: 42%;
+    background: linear-gradient(90deg, #ffd700, #ff6b00);
+    border-radius: 4px;
+    transition: width 0.3s;
+  }
+
+  .terrain-base {
+    position: absolute;
+    inset: 0;
+  }
+</style>
+
+<div class="section">
+  <h2>遺跡世界地圖（2D 繪製風格 · 迷霧覆蓋）</h2>
+  <p class="subtitle">單一連續大地圖，CSS 繪製地形景觀，迷霧遮住未探索區域 — 隱約可見地形輪廓</p>
+</div>
+
+<div class="rpg-map-container">
+  <div class="rpg-map">
+
+    <!-- Terrain Base -->
+    <div class="terrain-base" style="background:#2a4a2a;"></div>
+    <!-- Lake -->
+    <div style="position:absolute;top:4%;left:52%;width:22%;height:28%;background:#1a2a5a;border-radius:0 50% 55% 30%;opacity:0.7;"></div>
+    <!-- Mountain ridge -->
+    <div style="position:absolute;top:1%;left:5%;width:25%;height:22%;background:#4a4a3a;border-radius:50% 30% 20% 40%;opacity:0.6;"></div>
+    <!-- Dark forest -->
+    <div style="position:absolute;top:55%;left:50%;width:30%;height:35%;background:#1a3a1a;border-radius:40% 0 60% 20%;opacity:0.7;"></div>
+    <!-- Sandy area -->
+    <div style="position:absolute;top:45%;left:2%;width:20%;height:22%;background:#4a3a2a;border-radius:20% 50% 10% 40%;opacity:0.6;"></div>
+    <!-- Hill -->
+    <div style="position:absolute;top:58%;left:22%;width:18%;height:16%;background:#3a4a3a;border-radius:40% 40% 10% 10%;opacity:0.5;"></div>
+    <!-- Ruins area -->
+    <div style="position:absolute;top:62%;left:44%;width:18%;height:20%;background:#3a3a35;border-radius:10% 40% 30% 30%;opacity:0.5;"></div>
+
+    <!-- Paths -->
+    <div class="path-h" style="top:50%;left:18%;width:40%;"></div>
+    <div class="path-v" style="top:18%;left:47%;height:42%;"></div>
+    <div class="path-h" style="top:65%;left:42%;width:22%;"></div>
+
+    <!-- Trees -->
+    <div class="tree light" style="top:10%;left:32%;"></div>
+    <div class="tree dark" style="top:16%;left:26%;"></div>
+    <div class="tree light" style="top:8%;left:42%;transform:scale(0.85);"></div>
+    <div class="tree dark" style="top:22%;left:38%;transform:scale(0.9);"></div>
+    <div class="tree dark" style="top:60%;left:55%;"></div>
+    <div class="tree light" style="top:68%;left:62%;transform:scale(0.85);"></div>
+    <div class="tree dark" style="top:74%;left:58%;"></div>
+    <div class="tree light" style="top:66%;left:70%;transform:scale(0.8);"></div>
+    <div class="tree dark" style="top:40%;left:30%;transform:scale(0.8);"></div>
+    <div class="tree light" style="top:48%;left:75%;transform:scale(0.85);"></div>
+
+    <!-- Mountains -->
+    <div class="mountain" style="top:4%;left:10%;transform:scale(0.9);"></div>
+    <div class="mountain" style="top:10%;left:17%;transform:scale(0.7);"></div>
+    <div style="position:absolute;top:6%;left:12%;font-size:0.4rem;color:#888;text-shadow:0 1px 2px #000;">⛰️ 落日山丘</div>
+
+    <!-- Lake waves -->
+    <div class="wave" style="top:12%;left:60%;"></div>
+    <div class="wave" style="top:18%;left:56%;"></div>
+    <div class="wave" style="top:14%;left:68%;"></div>
+    <div style="position:absolute;top:5%;left:58%;font-size:0.4rem;color:#6af;text-shadow:0 1px 2px #000;">🪷 靜謐湖泊</div>
+
+    <!-- Village -->
+    <div class="tent" style="top:44%;left:20%;"></div>
+    <div class="tent" style="top:46%;left:28%;transform:scale(0.8);"></div>
+    <div class="bush" style="top:52%;left:22%;"></div>
+    <div class="bush" style="top:50%;left:32%;transform:scale(0.8);"></div>
+    <div style="position:absolute;top:40%;left:16%;font-size:0.4rem;color:#ca8;text-shadow:0 1px 2px #000;">🏘️ 風谷村</div>
+
+    <!-- Ruins -->
+    <div class="ruin-wall-v" style="top:64%;left:47%;height:18px;"></div>
+    <div class="ruin-wall-h" style="top:64%;left:47%;width:14px;"></div>
+    <div class="ruin-wall-v" style="top:68%;left:55%;height:14px;"></div>
+    <div class="ruin-wall-h" style="top:74%;left:50%;width:18px;"></div>
+    <div class="rock" style="top:70%;left:46%;"></div>
+    <div style="position:absolute;top:78%;left:1%;font-size:0.4rem;color:#888;text-shadow:0 1px 2px #000;">🏛️ 遠古遺跡</div>
+
+    <!-- Bushes & flowers -->
+    <div class="bush" style="top:72%;left:72%;"></div>
+    <div class="bush" style="top:37%;left:72%;"></div>
+    <div class="flower" style="top:44%;left:35%;"></div>
+    <div class="flower yellow" style="top:46%;left:72%;"></div>
+    <div class="flower" style="top:48%;left:78%;"></div>
+    <div class="rock" style="top:35%;left:65%;transform:scale(1.3);"></div>
+    <div class="rock" style="top:54%;left:40%;"></div>
+
+    <!-- Monsters -->
+    <div class="monster-icon" style="top:30%;left:14%;">🐗</div>
+    <div class="monster-icon" style="top:72%;left:32%;">🐺</div>
+    <div class="monster-icon" style="top:50%;left:58%;">🕷️</div>
+
+    <!-- Chests -->
+    <div class="chest-icon" style="top:38%;left:22%;">🧰</div>
+    <div class="chest-icon" style="top:56%;left:48%;">🧰</div>
+
+    <!-- Adventurers -->
+    <div class="adv-dot adv-warrior adv-glow-warrior" style="bottom:28%;left:33%;" title="戰士探索中"></div>
+    <div class="adv-arrow" style="bottom:34%;left:36%;">▶</div>
+    <div class="adv-dot adv-ranger adv-glow-ranger" style="bottom:18%;right:28%;" title="遊俠探索中"></div>
+
+    <!-- Fog of War -->
+    <div class="fog-layer">
+      <div class="fog-piece unlocked" style="top:0;left:0;width:48%;height:40%;"></div>
+      <div class="fog-piece unlocked" style="top:40%;left:0;width:44%;height:38%;"></div>
+      <div class="fog-piece can-unlock" style="top:0;left:48%;width:52%;height:40%;" onclick="void(0)">
+        <div class="fog-label">
+          <div class="lock">🔒</div>
+          <div class="cost">解鎖 600🪙</div>
+          <div class="hint">相鄰 · 點擊解鎖</div>
+        </div>
+      </div>
+      <div class="fog-piece" style="top:40%;left:44%;width:56%;height:35%;">
+        <div class="fog-label">
+          <div class="lock">🔒</div>
+          <div class="hint">需先解鎖相鄰</div>
+        </div>
+      </div>
+      <div class="fog-piece" style="top:78%;left:0;width:100%;height:22%;">
+        <div class="fog-label">
+          <div class="lock">🔒</div>
+          <div class="hint">需先解鎖相鄰</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="explore-bar">
+    <span style="font-size:0.85rem;color:#ffd700;white-space:nowrap;">🏛️ 探索條</span>
+    <div class="bar-track"><div class="bar-fill"></div></div>
+    <span style="font-size:0.7rem;color:#888;white-space:nowrap;">42% — 點擊累積探索點</span>
+  </div>
+
+  <div style="display:flex;gap:12px;margin-top:10px;font-size:0.7rem;color:#888;flex-wrap:wrap;justify-content:center;">
+    <span style="color:#4caf50;">🟢 已探索</span>
+    <span style="color:#ffd700;">🟡 可解鎖</span>
+    <span style="color:#333;">⬛ 迷霧深處</span>
+    <span>🔴 戰士</span>
+    <span>🟢 遊俠</span>
+    <span>🐗🐺🕷️ 怪物</span>
+    <span>🧰 寶箱</span>
+  </div>
+
+</div>
+
+<div class="section" style="margin-top:20px;">
+  <h3>探索新流程</h3>
+  <div style="display:flex;gap:8px;font-size:0.8rem;color:#ccc;flex-wrap:wrap;">
+    <div style="background:#1a1a2e;padding:6px 10px;border-radius:6px;border:1px solid #333;">1. 點擊累積探索條</div>
+    <div style="background:#1a1a2e;padding:6px 10px;border-radius:6px;border:1px solid #333;">2. 滿了→送冒險者隨機探索位置</div>
+    <div style="background:#1a1a2e;padding:6px 10px;border-radius:6px;border:1px solid #333;">3. 抵達→🪙金幣(常見)💎碎片(稀有)⚔️怪物(可戰鬥)</div>
+    <div style="background:#1a1a2e;padding:6px 10px;border-radius:6px;border:1px solid #333;">4. 花金幣解鎖迷霧區→擴大探索範圍</div>
+    <div style="background:#1a1a2e;padding:6px 10px;border-radius:6px;border:1px solid #333;">5. 全地圖解鎖→收集拼圖碎片→下一張地圖</div>
+  </div>
+</div>
