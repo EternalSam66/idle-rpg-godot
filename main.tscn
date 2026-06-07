@@ -1,0 +1,98 @@
+[gd_scene load_steps=3 format=3 id="uid://b87xnyr82e3x1"]
+
+[ext_resource type="Script" path="res://main.gd" id="1_main_script"]
+[ext_resource type="Script" path="res://dungeon_engine.gd" id="2_dungeon_script"]
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_main_script")
+
+[node name="DungeonEngine" type="Node" parent="."]
+script = ExtResource("2_dungeon_script")
+
+[node name="MainWorkspace" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SplitLayout" type="HBoxContainer" parent="MainWorkspace"]
+layout_mode = 2
+
+[node name="DungeonViewportPanel" type="VBoxContainer" parent="MainWorkspace/SplitLayout"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DungeonFloorIndicator" type="Label" parent="MainWorkspace/SplitLayout/DungeonViewportPanel"]
+layout_mode = 2
+theme_type_variation = &"HeaderLarge"
+text = "Dungeon Floor: 1"
+horizontal_alignment = 1
+
+[node name="BattleArenaDisplay" type="PanelContainer" parent="MainWorkspace/SplitLayout/DungeonViewportPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="LogConsole" type="RichTextLabel" parent="MainWorkspace/SplitLayout/DungeonViewportPanel/BattleArenaDisplay"]
+layout_mode = 2
+bbcode_enabled = true
+scroll_following = true
+
+[node name="GuildPanel" type="PanelContainer" parent="MainWorkspace/SplitLayout"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+
+[node name="GuildLayout" type="VBoxContainer" parent="MainWorkspace/SplitLayout/GuildPanel"]
+layout_mode = 2
+
+[node name="CoinDisplay" type="Label" parent="MainWorkspace/SplitLayout/GuildPanel/GuildLayout"]
+layout_mode = 2
+text = "Gold: 775"
+horizontal_alignment = 1
+
+[node name="RosterTitle" type="Label" parent="MainWorkspace/SplitLayout/GuildPanel/GuildLayout"]
+layout_mode = 2
+text = "--- HIRED ADVENTURERS ---"
+horizontal_alignment = 1
+
+[node name="RosterGrid" type="GridContainer" parent="MainWorkspace/SplitLayout/GuildPanel/GuildLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+columns = 2
+
+[node name="WarriorCard" type="VBoxContainer" parent="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/RosterGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Title" type="Label" parent="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/RosterGrid/WarriorCard"]
+layout_mode = 2
+text = "Warrior (Lv.1)"
+horizontal_alignment = 1
+
+[node name="HireWarriorBtn" type="Button" parent="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/RosterGrid/WarriorCard"]
+layout_mode = 2
+disabled = true
+text = "HIRED"
+
+[node name="MageCard" type="VBoxContainer" parent="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/RosterGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Title" type="Label" parent="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/RosterGrid/MageCard"]
+layout_mode = 2
+text = "Mage (Lv.1)"
+horizontal_alignment = 1
+
+[node name="HireMageBtn" type="Button" parent="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/RosterGrid/MageCard"]
+layout_mode = 2
+text = "75k Gold Required"
+
+[connection signal="pressed" type="button" path="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/RosterGrid/WarriorCard/HireWarriorBtn" method="_on_hire_warrior_btn_pressed"]
+[connection signal="pressed" type="button" path="MainWorkspace/SplitLayout/GuildPanel/GuildLayout/RosterGrid/MageCard/HireMageBtn" method="_on_hire_mage_btn_pressed"]
